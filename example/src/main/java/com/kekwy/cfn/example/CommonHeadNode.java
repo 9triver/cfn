@@ -41,4 +41,17 @@ public class CommonHeadNode implements HeadNode {
     public String getId() {
         return id;
     }
+
+    @Override
+    public void submitTask(Task<?> task) {
+        // 暂时以串行方式实现
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+
 }

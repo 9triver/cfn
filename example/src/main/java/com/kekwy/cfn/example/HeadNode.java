@@ -11,4 +11,8 @@ public interface HeadNode {
     void addNeighborNode(HeadNode headNode);
 
     String getId();
+
+    void submitTask(Task<?> task);
+
+    void start();
 }

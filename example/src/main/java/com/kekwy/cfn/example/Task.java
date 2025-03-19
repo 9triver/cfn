@@ -1,4 +1,50 @@
 package com.kekwy.cfn.example;
 
-public class Task {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+
+@Getter
+@Setter
+public class Task<T> {
+
+    private String tid;
+    private final Function<Map<String, Object>, T> function;
+    private final Map<String, Object> params;
+    private final ResultWrapper resultWrapper = new ResultWrapper();
+    private final Resource requiredResource;
+
+    public Task(Function<Map<String, Object>, T> function, Map<String, Object> params,
+                int cpu, int mem, Collection<String> tags) {
+        this.function = function;
+        this.params = params;
+        this.requiredResource = new Resource(cpu, mem, tags);
+    }
+
+    private class ResultWrapper {
+        private volatile T value = null;
+    }
+
+    public T getResult() throws InterruptedException {
+        if (resultWrapper.value == null) {
+            synchronized (resultWrapper) {
+                if (resultWrapper.value == null) {
+                    resultWrapper.wait();
+                }
+            }
+        }
+        return resultWrapper.value;
+    }
+
+    public void setResult(T value) {
+        synchronized (resultWrapper) {
+            resultWrapper.value = value;
+            resultWrapper.notify();
+        }
+    }
+
 }
