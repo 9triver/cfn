@@ -18,11 +18,13 @@ public class NodeMonitor {
     public void registerWorkerNodes(Collection<WorkerNode> workerNodes) {
         for (WorkerNode workerNode : workerNodes) {
             workerNodeMap.put(workerNode.getId(), workerNode);
+            workerNode.start(); // 启动工作结点
         }
     }
 
     public void registerHeadNode(HeadNode headNode) {
         headNodeMap.put(headNode.getId(), headNode);
+        headNode.start();       // 启动头结点
     }
 
     @GetMapping("/head/{nodeId}")
