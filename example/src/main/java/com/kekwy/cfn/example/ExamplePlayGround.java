@@ -57,7 +57,7 @@ public class ExamplePlayGround implements CommandLineRunner {
                     return endTime - startTime;
                 },
                 null,
-                2, 512, Set.of()
+                16, 512, Set.of()
         );
 
         // 提交任务

@@ -10,9 +10,13 @@ public interface HeadNode {
 
     void addNeighborNode(HeadNode headNode);
 
+    Collection<HeadNode> getNeighborNodes();
+
     String getId();
 
     void submitTask(Task<?> task);
 
     void start();
+
+    Resource getTotalResource();
 }

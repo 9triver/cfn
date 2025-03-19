@@ -9,4 +9,5 @@ public class HeadNodeState {
     private String id;
     private Resource totalResources;
     private Collection<String> workers;
+    private Collection<String> neighbours;
 }
