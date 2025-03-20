@@ -3,9 +3,7 @@ package com.kekwy.cfn.example;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 @Getter
@@ -17,6 +15,8 @@ public class Task<T> {
     private final Map<String, Object> params;
     private final ResultWrapper resultWrapper = new ResultWrapper();
     private final Resource requiredResource;
+
+    private final List<String> path = new ArrayList<>();
 
     public Task(Function<Map<String, Object>, T> function, Map<String, Object> params,
                 int cpu, int mem, Collection<String> tags) {

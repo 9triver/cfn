@@ -33,6 +33,7 @@ public class CommonHeadNode implements HeadNode {
     @Override
     public void addNeighborNode(HeadNode headNode) {
         neighbors.put(headNode.getId(), headNode);
+        // TODO: 解决环形调度的情况
     }
 
     @Override

@@ -31,6 +31,7 @@ public class ExamplePlayGround implements CommandLineRunner {
         headNode2.addWorkerNode(new CommonWorkerNode(16, 16384, Set.of()));
 
         headNode1.addNeighborNode(headNode2);
+        headNode2.addNeighborNode(headNode1);
 
         // 向监视器中注册结点，模拟带外感知
         nodeMonitor.registerHeadNode(headNode1);
