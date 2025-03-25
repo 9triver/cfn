@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/kekwy/cfn/api";
+
+message ResourceStatus {
+  string node_id = 1;
+  float available_cpu = 2;
+  int64 available_memory = 3;
+}
+
+message Heartbeat {
+  string node_id = 1;
+  ResourceStatus status = 2;
+}
+
+message Ack {
+  int32 ack = 1;
+}
+
+service Node {
+  rpc heartbeat (Heartbeat) returns (Ack) {}
+}
+
+
+
