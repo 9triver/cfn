@@ -5,6 +5,7 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/remote"
 	"github.com/kekwy/cfn/core/models"
+	"strings"
 )
 
 type PIDEntry struct {
@@ -51,7 +52,15 @@ func NewCommonHeadNode(neighborPIDs []string) *CommonHeadNode {
 	}
 	// string 转 PIDEntry
 	// e.g. "headnode@10.0.2.1:8080"
-
+	for _, neighborPID := range neighborPIDs {
+		parts := strings.Split(neighborPID, "@")
+		if len(parts) != 2 {
+			panic("无效的 PID 字符串格式")
+		}
+		id := parts[0]      // Actor ID
+		address := parts[1] // Actor 地址
+		res.neighbors[PIDEntry{Id: id, Address: address}] = nil
+	}
 	return res
 }
 
