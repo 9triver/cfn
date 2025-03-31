@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package cfn.messages;
+option go_package = "github.com/kekwy/cfn/messages";
+
+import "resource.proto";
+
+message HeartBeat {
+  Resource Resource = 1;
+}
+
+message HeartBeatAck {
+}
+
+message HeartBeatTimeout {
+}

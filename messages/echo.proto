@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package cfn.messages;
+option go_package = "github.com/kekwy/cfn/messages";
+import "github.com/asynkron/protoactor-go@v0.0.0-20240822202345-3c0e61ca19c9/actor/actor.proto";
+
+message Echo {
+  actor.PID Sender = 1;
+  string Message = 2;
+}
