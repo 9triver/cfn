@@ -2,13 +2,11 @@ module github.com/kekwy/cfn
 
 go 1.24
 
-replace github.com/kekwy/cfn/core => ./core
 
 require (
 	github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9
 	google.golang.org/protobuf v1.36.6
 	k8s.io/client-go v0.32.3
-	k8s.io/metrics v0.32.3
 )
 
 require (

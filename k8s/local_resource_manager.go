@@ -21,3 +21,8 @@ func (manager LocalResourceManager) CreateWorkerActor(requiredResource *models.R
 	fmt.Println("memory:", memory)
 	return &actor.PID{}
 }
+
+func (manager LocalResourceManager) GetResourceStatus() *models.Resource {
+	//client := getK8sClient()
+	return nil
+}
