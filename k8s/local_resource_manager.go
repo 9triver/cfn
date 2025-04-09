@@ -13,7 +13,7 @@ func NewLocalResourceManager() *LocalResourceManager {
 	return &LocalResourceManager{}
 }
 
-func (manager LocalResourceManager) CreateWorkerActor(requiredResource *models.Resource) *actor.PID {
+func (manager LocalResourceManager) CreateWorkerActor(actorImage []byte, requestResource *models.Resource) *actor.PID {
 	//panic("implement me")
 	client := getK8sClient()
 	node := getK8sNode(client, "epyc")

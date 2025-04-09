@@ -2,9 +2,17 @@ syntax = "proto3";
 
 package cfn.messages;
 option go_package = "github.com/kekwy/cfn/messages";
-import "github.com/asynkron/protoactor-go@v0.0.0-20240822202345-3c0e61ca19c9/actor/actor.proto";
 
-message Task {
-  actor.PID Sender = 1;
-  string Message = 2;
+import "google/protobuf/struct.proto";
+
+message TaskInputs {
+  map<string, google.protobuf.Struct> data = 1;
+}
+
+message TaskOutputs {
+  map<string, google.protobuf.Struct> data = 1;
+}
+
+message TaskError {
+  string message = 1;
 }

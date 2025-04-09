@@ -90,7 +90,7 @@ func (core *ActorCore) initHandler(context actor.Context) {
 	//}
 	// 创建心跳检测计时器
 	context.Watch(core.pid)
-	// 切换 actor 状态
+	// 切换 client 状态
 	core.behavior.Become(core.runningBehavior)
 }
 

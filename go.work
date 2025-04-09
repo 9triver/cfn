@@ -2,6 +2,8 @@ go 1.24
 
 use (
 	.
-	core
-	actor
+	./client
+	client/docker
+	example
+	example/functions/add_function
 )
