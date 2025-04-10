@@ -5,6 +5,7 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/kekwy/cfn/messages"
 	"github.com/kekwy/cfn/task"
+	"google.golang.org/protobuf/types/known/structpb"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -57,7 +58,7 @@ func (a *TaskActor) deployFunction(function *messages.TaskFunction) {
 
 	factory, ok := sym.(task.FunctionFactory)
 	if !ok {
-		fmt.Println("invalid handler type")
+		fmt.Println("invalid factory type")
 	}
 	a.function = factory()
 }
@@ -66,8 +67,11 @@ func (a *TaskActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *actor.Started:
 		fmt.Println("Started" + fmt.Sprint(msg))
-	case messages.TaskFunction:
+	case messages.TaskFunction: // 部署函数
 		a.deployFunction(&msg)
+	case *structpb.Struct:		// 接受输入
+		taskResults, err := a.function.Apply(msg)
+		ccontext.Respond(taskResults)
 	}
 
 }

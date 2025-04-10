@@ -20,11 +20,9 @@ func NewCFNClient(remotePID *actor.PID, imagePath string) *CFNClient {
 }
 
 func (client *CFNClient) Submit(functionName string, codePath string) {
-	// 1. 获取函数名
-	fmt.Println(runtime.FuncForPC(reflect.ValueOf(function).Pointer()).Name())
+	// TODO: 将函数名和函数源码上传至远程 Actor
 
-	// 2. 生成 Docker File，在镜像的环境变量中指定 TaskFunc
-	//reflect.
-	//	// TODO: 打包创建镜像的时候需要包含最小的依赖闭包
+
+	//	// TODO: 打包创建镜像的时候需要包含最小依赖
 	//	function(nil)
 }
