@@ -16,3 +16,9 @@ message TaskOutputs {
 message TaskError {
   string message = 1;
 }
+
+message TaskFunction {
+  string namespace = 1;
+  string name = 2;
+  bytes code = 3;
+}

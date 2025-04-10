@@ -19,7 +19,7 @@ func NewCFNClient(remotePID *actor.PID, imagePath string) *CFNClient {
 	}
 }
 
-func (client *CFNClient) Submit(function TaskFunction) {
+func (client *CFNClient) Submit(functionName string, codePath string) {
 	// 1. 获取函数名
 	fmt.Println(runtime.FuncForPC(reflect.ValueOf(function).Pointer()).Name())
 

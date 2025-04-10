@@ -6,4 +6,5 @@ use (
 	client/docker
 	example
 	example/functions/add_function
+	./task/actor
 )

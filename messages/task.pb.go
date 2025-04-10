@@ -154,6 +154,66 @@ func (x *TaskError) GetMessage() string {
 	return ""
 }
 
+type TaskFunction struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Code          []byte                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskFunction) Reset() {
+	*x = TaskFunction{}
+	mi := &file_task_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskFunction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskFunction) ProtoMessage() {}
+
+func (x *TaskFunction) ProtoReflect() protoreflect.Message {
+	mi := &file_task_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskFunction.ProtoReflect.Descriptor instead.
+func (*TaskFunction) Descriptor() ([]byte, []int) {
+	return file_task_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TaskFunction) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *TaskFunction) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TaskFunction) GetCode() []byte {
+	if x != nil {
+		return x.Code
+	}
+	return nil
+}
+
 var File_task_proto protoreflect.FileDescriptor
 
 const file_task_proto_rawDesc = "" +
@@ -172,7 +232,11 @@ const file_task_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12-\n" +
 	"\x05value\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x05value:\x028\x01\"%\n" +
 	"\tTaskError\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessageB\x1fZ\x1dgithub.com/kekwy/cfn/messagesb\x06proto3"
+	"\amessage\x18\x01 \x01(\tR\amessage\"T\n" +
+	"\fTaskFunction\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04code\x18\x03 \x01(\fR\x04codeB\x1fZ\x1dgithub.com/kekwy/cfn/messagesb\x06proto3"
 
 var (
 	file_task_proto_rawDescOnce sync.Once
@@ -186,20 +250,21 @@ func file_task_proto_rawDescGZIP() []byte {
 	return file_task_proto_rawDescData
 }
 
-var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_task_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_task_proto_goTypes = []any{
 	(*TaskInputs)(nil),      // 0: cfn.messages.TaskInputs
 	(*TaskOutputs)(nil),     // 1: cfn.messages.TaskOutputs
 	(*TaskError)(nil),       // 2: cfn.messages.TaskError
-	nil,                     // 3: cfn.messages.TaskInputs.DataEntry
-	nil,                     // 4: cfn.messages.TaskOutputs.DataEntry
-	(*structpb.Struct)(nil), // 5: google.protobuf.Struct
+	(*TaskFunction)(nil),    // 3: cfn.messages.TaskFunction
+	nil,                     // 4: cfn.messages.TaskInputs.DataEntry
+	nil,                     // 5: cfn.messages.TaskOutputs.DataEntry
+	(*structpb.Struct)(nil), // 6: google.protobuf.Struct
 }
 var file_task_proto_depIdxs = []int32{
-	3, // 0: cfn.messages.TaskInputs.data:type_name -> cfn.messages.TaskInputs.DataEntry
-	4, // 1: cfn.messages.TaskOutputs.data:type_name -> cfn.messages.TaskOutputs.DataEntry
-	5, // 2: cfn.messages.TaskInputs.DataEntry.value:type_name -> google.protobuf.Struct
-	5, // 3: cfn.messages.TaskOutputs.DataEntry.value:type_name -> google.protobuf.Struct
+	4, // 0: cfn.messages.TaskInputs.data:type_name -> cfn.messages.TaskInputs.DataEntry
+	5, // 1: cfn.messages.TaskOutputs.data:type_name -> cfn.messages.TaskOutputs.DataEntry
+	6, // 2: cfn.messages.TaskInputs.DataEntry.value:type_name -> google.protobuf.Struct
+	6, // 3: cfn.messages.TaskOutputs.DataEntry.value:type_name -> google.protobuf.Struct
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
@@ -218,7 +283,7 @@ func file_task_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_task_proto_rawDesc), len(file_task_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
