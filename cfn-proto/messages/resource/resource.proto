@@ -1,0 +1,21 @@
+syntax = "proto3";
+package resource;
+option go_package = "github.com/9triver/ignis/proto/resource";
+
+message Resource {
+  CPU CPU = 1;
+  Memory Memory = 2;
+  repeated string Tags = 3;
+}
+
+message CPU {
+  int32 cores = 1;
+}
+
+message Memory {
+  int32 capacity = 1;
+}
+
+
+
+

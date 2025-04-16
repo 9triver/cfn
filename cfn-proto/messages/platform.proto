@@ -1,6 +1,6 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/9triver/cfn/proto";
+option go_package = "github.com/9triver/ignis/proto";
 
 import "actor.proto";
 

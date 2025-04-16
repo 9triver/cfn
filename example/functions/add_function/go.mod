@@ -4,7 +4,7 @@ go 1.24
 
 require github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9 // indirect
 
-replace github.com/kekwy/cfn/client => ../../../client
+replace github.com/9triver/cfn/client-go => ../../../cfn-client-go
 
 require (
 	github.com/Workiva/go-datastructures v1.1.3 // indirect
@@ -17,7 +17,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.5.0 // indirect
-	github.com/kekwy/cfn/client v0.0.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.0.0 // indirect
 	github.com/lmittmann/tint v1.0.3 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect

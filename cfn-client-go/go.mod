@@ -1,10 +1,8 @@
-module github.com/9triver/cfn/example
+module github.com/9triver/cfn/client-go
 
 go 1.24
 
-require github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9 // indirect
-
-replace github.com/9triver/cfn/client-go => ../cfn-client-go
+require github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9
 
 require (
 	github.com/Workiva/go-datastructures v1.1.3 // indirect

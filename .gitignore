@@ -1,2 +1,6 @@
-.idea
-**.sum
+# generated files
+*.pb.go
+*_pb2.py
+*_pb2.pyi
+ts/
+*.exe

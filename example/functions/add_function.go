@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/kekwy/cfn/task"
+	"github.com/9triver/cfn/cfn-go/task"
 )
 
 type AddFunction struct {

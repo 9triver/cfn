@@ -16,7 +16,8 @@ ACTOR_SRC=$(go list -f {{.Dir}} github.com/asynkron/protoactor-go/actor)
 ACTOR_PROTO=$ACTOR_SRC/actor.proto
 
 PROTOC="$PROTOC -I $ACTOR_SRC -I ./messages"
-PROTO_SRC="./messages/*.proto ./messages/executor/*.proto ./messages/dag/*.proto ./messages/controller/*.proto"
+#PROTO_SRC="./messages/*.proto ./messages/executor/*.proto ./messages/dag/*.proto ./messages/controller/*.proto"
+PROTO_SRC="./messages/*.proto ./messages/resource/*.proto ./messages/controller/*.proto"
 if [ ! -d ./ts ]; then
   echo "Creating output directory for TypeScript: ./ts"
   mkdir -p ./ts
@@ -28,7 +29,11 @@ if [ ! -d ./python ]; then
 fi
 
 echo "Generating protobuf files for Go"
-$PROTOC --go_out=./go --go_opt=paths=source_relative --go-grpc_out=./go --go-grpc_opt=paths=source_relative $PROTO_SRC
+GO_CODE_PATH=./go
+if [ ! -d $GO_CODE_PATH ];then
+  mkdir $GO_CODE_PATH
+fi
+$PROTOC --go_out=./go --go_opt=paths=source_relative --go-grpc_out=$GO_CODE_PATH --go-grpc_opt=paths=source_relative $PROTO_SRC
 
 echo "Generating protobuf files for TypeScript"
 $PROTOC --ts_proto_out=./ts --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true $PROTO_SRC $ACTOR_PROTO

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/kekwy/cfn/client"
+	"github.com/kekwy/cfn/cfn-client-go"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

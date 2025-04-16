@@ -1,10 +1,12 @@
-module github.com/9triver/cfn/example
+module github.com/9triver/cfn/work-platform/docker-python
 
 go 1.24
 
 require github.com/asynkron/protoactor-go v0.0.0-20240822202345-3c0e61ca19c9 // indirect
 
-replace github.com/9triver/cfn/client-go => ../cfn-client-go
+replace (
+	github.com/9triver/ignis/proto => ./proto
+)
 
 require (
 	github.com/Workiva/go-datastructures v1.1.3 // indirect
@@ -20,6 +22,7 @@ require (
 	github.com/lithammer/shortuuid/v4 v4.0.0 // indirect
 	github.com/lmittmann/tint v1.0.3 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/orcaman/concurrent-map v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
