@@ -30,6 +30,7 @@ func main() {
 	// 2. 启动远程
 	system := actor.NewActorSystem()
 	remoteConfig := remote.Configure(host, portNum)
+	//remoteConfig.AdvertisedHost = "127.0.0.1" // TODO: fix it
 	//remote.ConfigOption
 	remoteInstance := remote.NewRemote(system, remoteConfig)
 	remoteInstance.Start()

@@ -8,12 +8,17 @@ message Resource {
   repeated string Tags = 3;
 }
 
+message GPU {
+  string cores = 1;
+}
+
 message CPU {
-  int32 cores = 1;
+  string cores = 1;
+  string arch = 2;
 }
 
 message Memory {
-  int32 capacity = 1;
+  string capacity = 1;
 }
 
 

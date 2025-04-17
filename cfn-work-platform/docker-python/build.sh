@@ -1,0 +1,1 @@
+docker build -t cfn-work-platform-python:0.0.0 .

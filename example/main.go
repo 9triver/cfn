@@ -15,7 +15,7 @@ func main() {
 	root := system.Root
 
 	root.Send(
-		actor.NewPID("jasdf:8667", "cfn-work-platform"),
+		actor.NewPID("[::]:8667", "cfn-work-platform"),
 		&controller.AppendPyFunc{
 			Name:          "",
 			Params:        nil,
