@@ -1,7 +1,7 @@
 go 1.24
 
 use (
-	./cfn-proto/go
+	./../cfn-proto/go
 	./cfn-go
 	./cfn-work-platform/docker-python
 	./cfn-client-go
