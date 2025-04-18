@@ -1,0 +1,12 @@
+spring.application:
+  name: cfn-node
+
+cfn:
+  node:
+    head: false
+
+grpc:
+  port: 9090
+
+server:
+  port: 8080

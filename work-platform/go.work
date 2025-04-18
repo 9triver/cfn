@@ -1,0 +1,11 @@
+go 1.24
+
+use (
+	./../proto/go
+	./cfn-go
+	./cfn-work-platform/docker-python
+	./cfn-client-go
+	./example
+	./example/functions/add_function
+	./cfn-go/task/actor
+)
