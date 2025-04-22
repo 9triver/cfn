@@ -3,10 +3,14 @@ spring.application:
 
 cfn:
   node:
-    head: false
+    head: true
+    local-resource-manager: com.github9triver.cfn.manager.K8sLocalResourceManager
+  k8s:
+    config-file: ""
+    context: "docker-desktop"
 
 grpc:
   port: 9090
 
 server:
-  port: 8080
+  port: 8081

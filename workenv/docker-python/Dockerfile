@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /cfn-work-platform
 FROM python:3.11-slim
 
 # 从 builder 阶段复制 Go 二进制文件
-COPY --from=builder /work-platform /usr/local/bin/cfn-work-platform
+COPY --from=builder /workenv /usr/local/bin/cfn-work-platform
 
 # 设置容器启动命令
 CMD ["/usr/local/bin/cfn-work-platform"]
