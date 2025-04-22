@@ -1,5 +1,6 @@
 package com.github9triver.cfn.manager;
 
+import com.github9triver.cfn.model.Resource;
 import com.github9triver.cfn.config.K8sClientProperties;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -67,7 +68,7 @@ public class K8sLocalResourceManager implements LocalResourceManager {
     //    private final static String[] resourceTypes = {"cpu", "memory", "pods", "ephemeral-storage"};
     private final static String[] resourceTypes = {"cpu", "memory"};
 
-    public void getAllResources() {
+    public Resource getAllResources() {
         CoreV1Api k8sApi = getK8sApi();
         try {
             V1NodeList nodeList = k8sApi.listNode().execute();
@@ -77,6 +78,7 @@ public class K8sLocalResourceManager implements LocalResourceManager {
         } catch (ApiException e) {
             throw new RuntimeException(e);
         }
+        return null;
     }
 
 }
