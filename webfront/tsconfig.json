@@ -15,7 +15,9 @@
         "sourceMap": true,
         "baseUrl": ".",
         "types": [
-            "webpack-env"
+            "webpack-env",
+            "@vueuse/core",
+            "@vueuse/types",
         ],
         "paths": {
             "@/*": [
@@ -27,7 +29,7 @@
             "dom",
             "dom.iterable",
             "scripthost"
-        ]
+        ],
     },
     "include": [
         "src/**/*.ts",
@@ -36,8 +38,6 @@
         "tests/**/*.ts",
         "tests/**/*.tsx",
         "babel.config.ts",
-        "vue.config.ts",
-        "types/*.d.ts"
     ],
     "exclude": [
         "node_modules"

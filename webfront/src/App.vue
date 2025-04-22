@@ -10,10 +10,7 @@
 
 <style scoped>
 :root {
-  --header-height: 55px;
-  --nav-height: 55px;
   /*--graph-background: #F2F7FA;*/
-  --graph-background: #FFF;
   /*--text-color: var(--el-text-color-primary);
   --brand-color: var(--el-color-primary);*/
 }
@@ -24,7 +21,7 @@
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
   color: #2c3e50;
-  width: 100vw; /* 全屏宽度 */
+  width: 100%; /* 全屏宽度 */
   height: 100vh; /* 全屏高度 */
 }
 
