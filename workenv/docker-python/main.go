@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/9triver/cfn/work-platform/docker-python/platform"
+	"github.com/9triver/cfn/work-platform/docker-python/workenv"
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/remote"
 	"os"
@@ -38,7 +38,7 @@ func main() {
 	// 3. 启动 Actor
 	context := system.Root
 	props := actor.PropsFromProducer(func() actor.Actor {
-		return platform.NewController()
+		return workenv.NewController()
 	})
 	pid, err2 := context.SpawnNamed(props, name)
 

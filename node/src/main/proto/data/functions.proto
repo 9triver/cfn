@@ -23,4 +23,5 @@ message AppendPyFunc {
 service FunctionService {
   // TODO: modify the return type
   rpc deployPyFunc(AppendPyFunc) returns (proto.ServiceReplay) {}
+  rpc removePyFunc(AppendPyFunc) returns (proto.ServiceReplay) {}
 }

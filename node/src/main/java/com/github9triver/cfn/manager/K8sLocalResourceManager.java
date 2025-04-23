@@ -2,13 +2,14 @@ package com.github9triver.cfn.manager;
 
 import com.github9triver.cfn.config.K8sClientProperties;
 import com.github9triver.cfn.model.dto.ResourceDto;
+import com.github9triver.cfn.model.dto.ServerAddress;
+import com.github9triver.cfn.proto.data.Resources;
+import io.kubernetes.client.custom.IntOrString;
 import io.kubernetes.client.custom.Quantity;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Node;
-import io.kubernetes.client.openapi.models.V1NodeList;
-import io.kubernetes.client.openapi.models.V1NodeStatus;
+import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -114,7 +118,121 @@ public class K8sLocalResourceManager implements LocalResourceManager {
         return getResourceCount(V1NodeStatus::getAllocatable);
     }
 
+
     interface ResourceAccessor extends Function<V1NodeStatus, Map<String, Quantity>> {
     }
 
+
+    private final Object lock = new Object();
+    private int podNumber = 0;
+
+    /**
+     * @return 唯一 pod 名
+     */
+    private String getUniqueName() {
+        synchronized (lock) {
+            return System.currentTimeMillis() + "-" + podNumber++;
+        }
+    }
+
+    @Override
+    public ServerAddress requestResources(Resources.Resource resource) {
+        V1ResourceRequirements resources = new V1ResourceRequirements()
+                .putRequestsItem("cpu", Quantity.fromString(resource.getCPU().getCores()))
+                .putRequestsItem("memory", Quantity.fromString(resource.getMemory().getCapacity()))
+                .putLimitsItem("cpu", Quantity.fromString(resource.getCPU().getCores()))
+                .putLimitsItem("memory", Quantity.fromString(resource.getMemory().getCapacity()));
+
+        String uniqueName = getUniqueName();
+        String podName = "cfn-workenv-pod-" + uniqueName;
+        String serviceName = "cfn-workenv-svc-" + uniqueName;
+        Map<String, String> labels = Map.of(
+                "app", "cfn-workenv",
+                "name", podName
+        );
+        V1Pod pod = new V1Pod()
+                .metadata(new V1ObjectMeta().name(podName).namespace("default").labels(labels))
+                .spec(new V1PodSpec().containers(List.of(
+                        new V1Container()
+                                .name(getUniqueName())
+                                .resources(resources)
+                                .image("cfn-workenv-python:0.1")
+                                .ports(List.of(new V1ContainerPort().containerPort(8667)))
+                )));
+
+        try {
+            api.createNamespacedPod("default", pod).execute();
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+
+        V1Service service = new V1Service()
+                .metadata(new V1ObjectMeta().name(serviceName).namespace("default"))
+                .spec(new V1ServiceSpec()
+                        .type("NodePort")
+                        .selector(labels)  // 与 Pod 的 label 匹配
+                        .ports(List.of(new V1ServicePort()
+                                .port(8667)               // Service 的端口
+                                .targetPort(new IntOrString(8667)) // Pod 容器的端口
+                        ))
+                );
+
+        Integer assignedPort; // 获取由集群分配的访问端口
+        try {
+            V1Service createdService = api.createNamespacedService("default", service).execute();
+            assignedPort = Objects.requireNonNull(
+                    Objects.requireNonNull(
+                            createdService.getSpec()
+                    ).getPorts()
+            ).getFirst().getNodePort();
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (assignedPort != null) {
+            try {
+                String address = getAccessibleAddress(assignedPort);
+
+                return new ServerAddress(address, assignedPort);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new RuntimeException("No assigned port");
+        }
+
+    }
+
+    // 尝试连接 IP:port，看是否能访问
+    @SuppressWarnings("SameParameterValue")
+    private boolean isReachable(String ip, int port, int timeoutMillis) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(ip, port), timeoutMillis);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // TODO: 缓存
+    // 获取可访问的地址（优先 Node IP，不通则 fallback 到 host.docker.internal）
+    private String getAccessibleAddress(int nodePort) throws Exception {
+        V1NodeList nodeList = api.listNode().execute();
+
+        for (V1Node node : nodeList.getItems()) {
+            List<V1NodeAddress> addresses = Objects.requireNonNull(node.getStatus()).getAddresses();
+            if (addresses != null) {
+                for (V1NodeAddress addr : addresses) {
+                    if ("InternalIP".equals(addr.getType())) {
+                        String ip = addr.getAddress();
+                        if (isReachable(ip, nodePort, 1000)) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+        }
+        // fallback
+        return "host.docker.internal";
+    }
 }
