@@ -12,6 +12,7 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.*;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
@@ -28,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@Slf4j
 public class K8sLocalResourceManager implements LocalResourceManager {
 
     private K8sClientProperties properties;
@@ -110,12 +112,67 @@ public class K8sLocalResourceManager implements LocalResourceManager {
 
     @Override
     public ResourceDto getTotalResourceCount() {
-        return getResourceCount(V1NodeStatus::getCapacity);
+        return getResourceCount(V1NodeStatus::getAllocatable);
     }
 
     @Override
     public ResourceDto getAvailableResourceCount() {
-        return getResourceCount(V1NodeStatus::getAllocatable);
+        Map<String, Map<String, BigDecimal>> nodeToAllocatable = new HashMap<>();
+        Map<String, Map<String, BigDecimal>> nodeToUsed = new HashMap<>();
+
+        // 获取所有 Node
+        try {
+            for (V1Node node : getK8sApi().listNode().execute().getItems()) {
+                String nodeName = Objects.requireNonNull(node.getMetadata()).getName();
+                Map<String, BigDecimal> alloc = new HashMap<>();
+                for (Map.Entry<String, Quantity> entry : Objects.requireNonNull(node.getStatus()).getAllocatable().entrySet()) {
+                    alloc.put(entry.getKey(), entry.getValue().getNumber());
+                }
+                nodeToAllocatable.put(nodeName, alloc);
+                nodeToUsed.put(nodeName, new HashMap<>()); // 初始化使用记录
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 获取所有 Pod
+        try {
+            for (V1Pod pod : getK8sApi().listPodForAllNamespaces().execute().getItems()) {
+                String nodeName = Objects.requireNonNull(pod.getSpec()).getNodeName();
+                if (nodeName == null || !nodeToUsed.containsKey(nodeName)) continue;
+
+                for (V1Container container : pod.getSpec().getContainers()) {
+                    Map<String, Quantity> requests = Objects.requireNonNull(container.getResources()).getRequests();
+                    if (requests == null) continue;
+
+                    Map<String, BigDecimal> used = nodeToUsed.get(nodeName);
+                    for (Map.Entry<String, Quantity> entry : requests.entrySet()) {
+                        String resType = entry.getKey();
+                        BigDecimal existing = used.getOrDefault(resType, BigDecimal.ZERO);
+                        used.put(resType, existing.add(entry.getValue().getNumber()));
+                    }
+                }
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+
+        // 输出结果
+        ResourceDto resourceDto = new ResourceDto();
+
+        for (String node : nodeToAllocatable.keySet()) {
+            Map<String, BigDecimal> alloc = nodeToAllocatable.get(node);
+            Map<String, BigDecimal> used = nodeToUsed.get(node);
+
+            for (String key : ResourceDto.RESOURCE_TYPES) {
+                BigDecimal allocQ = alloc.getOrDefault(key, BigDecimal.ZERO);
+                BigDecimal usedQ = used.getOrDefault(key, BigDecimal.ZERO);
+                BigDecimal remaining = allocQ.subtract(usedQ);
+                resourceDto.set(key, remaining);
+            }
+        }
+
+        return resourceDto;
     }
 
 
@@ -152,17 +209,18 @@ public class K8sLocalResourceManager implements LocalResourceManager {
         );
         V1Pod pod = new V1Pod()
                 .metadata(new V1ObjectMeta().name(podName).namespace("default").labels(labels))
-                .spec(new V1PodSpec().containers(List.of(
+                .spec(new V1PodSpec().overhead(null).containers(List.of(
                         new V1Container()
                                 .name(getUniqueName())
                                 .resources(resources)
-                                .image("cfn-workenv-python:0.1")
+                                .image("cfn-workenv-python:0.0")
                                 .ports(List.of(new V1ContainerPort().containerPort(8667)))
                 )));
 
         try {
-            api.createNamespacedPod("default", pod).execute();
+            getK8sApi().createNamespacedPod("default", pod).execute();
         } catch (ApiException e) {
+            log.error(e.toString());
             throw new RuntimeException(e);
         }
 
@@ -223,7 +281,7 @@ public class K8sLocalResourceManager implements LocalResourceManager {
             List<V1NodeAddress> addresses = Objects.requireNonNull(node.getStatus()).getAddresses();
             if (addresses != null) {
                 for (V1NodeAddress addr : addresses) {
-                    if ("InternalIP".equals(addr.getType())) {
+                    if ("ExternalIP".equals(addr.getType())) {
                         String ip = addr.getAddress();
                         if (isReachable(ip, nodePort, 1000)) {
                             return ip;
@@ -233,6 +291,6 @@ public class K8sLocalResourceManager implements LocalResourceManager {
             }
         }
         // fallback
-        return "host.docker.internal";
+        return "kubernetes.docker.internal";
     }
 }

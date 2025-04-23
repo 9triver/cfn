@@ -3,83 +3,56 @@ package workenv
 import (
 	"context"
 	"fmt"
-	messages "github.com/9triver/ignis/proto/controller"
-	"github.com/asynkron/protoactor-go/actor"
+	"github.com/9triver/cfn/proto"
+	pb "github.com/9triver/cfn/proto/data"
+	"google.golang.org/grpc"
 	"log/slog"
+	"net"
+	"os"
 )
 
 type Controller struct {
-	name       string
-	pid        *actor.PID
-	behavior   *actor.Behavior
 	envManager *VenvManager
+	logger     *slog.Logger
+	pb.UnimplementedFunctionServiceServer
 }
 
-func NewController() *Controller {
+func NewController(host string, port string) *Controller {
 	manager, err := NewManager(context.Background())
 	if err != nil {
 		return nil
 	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	controller := &Controller{
-		name:       "work-platform/controller",
-		pid:        nil,
-		behavior:   &actor.Behavior{},
 		envManager: manager,
+		logger:     logger,
 	}
-	controller.behavior.Become(controller.initBehavior)
+
+	lis, err := net.Listen("tcp", host+":"+port)
+	if err != nil {
+		panic(err)
+	}
+	grpcServer := grpc.NewServer()
+
+	pb.RegisterFunctionServiceServer(grpcServer, controller)
+
+	logger.Info("gRPC server listening on " + host + ":" + port)
+
+	if err := grpcServer.Serve(lis); err != nil {
+		panic(err)
+	}
+
 	return controller
 }
 
-func (controller *Controller) Receive(context actor.Context) {
-	logger := context.Logger()
-	logger.Info("Receive")
-	controller.behavior.Receive(context)
-}
-
-//======================================================================================================================
-// Behavior
-//----------------------------------------------------------------------------------------------------------------------
-
-func (controller *Controller) initBehavior(context actor.Context) {
-	logger := context.Logger()
-	switch msg := context.Message().(type) {
-	case *actor.Started:
-		controller.handleInit(context) // 初始化
-	default:
-		controller.handleUnexpectedMessage(msg, logger) // TODO: 返回提示给发送者
-	}
-}
-
-func (controller *Controller) runningBehavior(context actor.Context) {
-	logger := context.Logger()
-	logger.Info("Running behavior")
-	switch msg := context.Message().(type) {
-	case *messages.AppendPyFunc:
-		controller.handleAppendPyFunc(msg, logger)
-	default:
-		controller.handleUnexpectedMessage(msg, logger)
-	}
-}
-
-//======================================================================================================================
-// Handler
-//----------------------------------------------------------------------------------------------------------------------
-
-func (controller *Controller) handleAppendPyFunc(msg *messages.AppendPyFunc, logger *slog.Logger) {
+func (controller *Controller) DeployPyFunc(ctx context.Context, pyFunc *pb.AppendPyFunc) (*proto.ServiceReplay, error) {
 	// 初始化虚拟环境
-	venv, err := controller.envManager.GetVenv(msg.GetName(), msg.GetRequirements()...)
+	venv, err := controller.envManager.GetVenv(pyFunc.GetName(), pyFunc.GetRequirements()...)
 	if err != nil {
-		logger.Error(fmt.Sprint(err))
-		return
+		controller.logger.Error(fmt.Sprint(err))
+		return nil, err
 	}
-	logger.Info("虚拟环境初始化完成\n\t" + fmt.Sprint(venv))
-}
-
-func (controller *Controller) handleInit(context actor.Context) {
-	controller.pid = context.Self()
-	controller.behavior.Become(controller.runningBehavior)
-}
-
-func (controller *Controller) handleUnexpectedMessage(msg interface{}, logger *slog.Logger) {
-	logger.Warn(fmt.Sprintf("%v: Unexpected message type received. %v", controller.name, msg))
+	controller.logger.Info("虚拟环境初始化完成\n\t" + fmt.Sprint(venv))
+	return &proto.ServiceReplay{}, nil
 }
