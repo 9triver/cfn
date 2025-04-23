@@ -12,6 +12,6 @@ class K8SLocalResourceVoDtoManagerTest {
 
     @Test
     void getAllResources() {
-        localResourceManager.getAllResources();
+        localResourceManager.getTotalResourceCount();
     }
 }

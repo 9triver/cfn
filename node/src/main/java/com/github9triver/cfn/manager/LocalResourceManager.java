@@ -4,6 +4,8 @@ import com.github9triver.cfn.model.dto.ResourceDto;
 
 public interface LocalResourceManager {
 
-    ResourceDto getAllResources();
+    ResourceDto getTotalResourceCount();
+
+    ResourceDto getAvailableResourceCount();
 
 }

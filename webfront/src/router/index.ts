@@ -1,4 +1,5 @@
 import {createRouter, createWebHashHistory} from "vue-router";
+import homeRoutes from "@/router/home";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -9,8 +10,10 @@ const router = createRouter({
       component: () => import("@/views/HomeView.vue"),
       meta: {
         title: "home",
-      }
-    }
+      },
+      redirect: "/overview",
+      children: [...homeRoutes],
+    },
   ],
 });
 

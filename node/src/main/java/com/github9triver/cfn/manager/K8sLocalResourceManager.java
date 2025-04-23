@@ -8,6 +8,7 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Node;
 import io.kubernetes.client.openapi.models.V1NodeList;
+import io.kubernetes.client.openapi.models.V1NodeStatus;
 import io.kubernetes.client.util.ClientBuilder;
 import io.kubernetes.client.util.KubeConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class K8sLocalResourceManager implements LocalResourceManager {
@@ -72,7 +74,7 @@ public class K8sLocalResourceManager implements LocalResourceManager {
     //    private final static String[] resourceTypes = {"cpu", "memory", "pods", "ephemeral-storage"};
 //    private final static String[] resourceTypes = {"cpu", "memory"};
 
-    public ResourceDto getAllResources() {
+    private ResourceDto getResourceCount(ResourceAccessor accessor) {
         CoreV1Api k8sApi = getK8sApi();
         Map<String, BigDecimal> capacityMap = new HashMap<>();
         ResourceDto resourceDto = new ResourceDto();
@@ -81,7 +83,7 @@ public class K8sLocalResourceManager implements LocalResourceManager {
             V1NodeList nodeList = k8sApi.listNode().execute();
 
             for (V1Node item : nodeList.getItems()) {
-                Map<String, Quantity> capacity = Objects.requireNonNull(item.getStatus()).getCapacity();
+                Map<String, Quantity> capacity = accessor.apply(Objects.requireNonNull(item.getStatus()));
                 if (capacity != null) {
                     for (Map.Entry<String, Quantity> entry : capacity.entrySet()) {
                         String key = entry.getKey();
@@ -100,6 +102,19 @@ public class K8sLocalResourceManager implements LocalResourceManager {
         resourceDto.getMemory().setCapacity(capacityMap.get("memory"));
 
         return resourceDto;
+    }
+
+    @Override
+    public ResourceDto getTotalResourceCount() {
+        return getResourceCount(V1NodeStatus::getCapacity);
+    }
+
+    @Override
+    public ResourceDto getAvailableResourceCount() {
+        return getResourceCount(V1NodeStatus::getAllocatable);
+    }
+
+    interface ResourceAccessor extends Function<V1NodeStatus, Map<String, Quantity>> {
     }
 
 }

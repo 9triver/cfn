@@ -5,13 +5,13 @@ import axios from 'axios';
  * 根据运行环境获取基础请求URL
  */
 export const getUrl = (): string => {
-  const value: string = "tsddfsdf"
+  const value: string = "http://localhost:8081/api"
   return value == 'getCurrentDomain' ? window.location.protocol + '//' + window.location.host : value
 }
 
 export function createAxios<Data = any, T = ApiPromise<Data>>(
-  axiosConfig: AxiosRequestConfig,
-  mock: boolean = false,
+    axiosConfig: AxiosRequestConfig,
+    mock: boolean = false,
 ): T {
   const axiosInstance = axios.create({
     baseURL: mock ? window.location.protocol + '//' + window.location.host : getUrl(),
@@ -23,9 +23,9 @@ export function createAxios<Data = any, T = ApiPromise<Data>>(
 }
 
 interface ApiResponse<T = any> {
-  code: number;
+  status: number;
   data: T;
-  msg: string;
+  statusText: string;
   time: number;
 }
 
